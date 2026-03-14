@@ -55,8 +55,8 @@ async function loadWeather(lat, lng, name) {
   }
 }
 
-async function handleSearch() {
-  const query = searchInput.value.trim();
+async function handleSearch(query, { pushState = true } = {}) {
+  if (!query) query = searchInput.value.trim();
   if (!query) return;
 
   showLoading();
@@ -68,6 +68,12 @@ async function handleSearch() {
     }
     const loc = locations[0];
     await loadWeather(loc.lat, loc.lng, loc.displayName);
+    searchInput.value = query;
+    if (pushState) {
+      const url = new URL(window.location);
+      url.searchParams.set("q", query);
+      history.pushState({ query }, "", url);
+    }
   } catch {
     showError("Search failed. Please try again.");
   }
@@ -80,15 +86,25 @@ function setUnit(unit) {
   renderAll();
 }
 
-searchBtn.addEventListener("click", handleSearch);
+searchBtn.addEventListener("click", () => handleSearch());
 searchInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") handleSearch();
+});
+window.addEventListener("popstate", (e) => {
+  const query =
+    e.state?.query || new URL(window.location).searchParams.get("q");
+  if (query) {
+    handleSearch(query, { pushState: false });
+  }
 });
 unitF.addEventListener("click", () => setUnit("F"));
 unitC.addEventListener("click", () => setUnit("C"));
 
-// On load: try geolocation
-if ("geolocation" in navigator) {
+// On load: check URL params first, then try geolocation
+const initialQuery = new URL(window.location).searchParams.get("q");
+if (initialQuery) {
+  handleSearch(initialQuery, { pushState: false });
+} else if ("geolocation" in navigator) {
   showLoading();
   navigator.geolocation.getCurrentPosition(
     async (pos) => {
