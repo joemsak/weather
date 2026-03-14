@@ -89,22 +89,11 @@ unitC.addEventListener("click", () => setUnit("C"));
 
 // On load: try geolocation
 if ("geolocation" in navigator) {
+  showLoading();
   navigator.geolocation.getCurrentPosition(
     async (pos) => {
       const { latitude, longitude } = pos.coords;
-      // Reverse geocode to get a name
-      try {
-        const response = await fetch(
-          `https://geocoding-api.open-meteo.com/v1/search?name=${latitude.toFixed(2)},${longitude.toFixed(2)}&count=1&language=en`,
-        );
-        const data = await response.json();
-        const name = data.results?.[0]
-          ? `${data.results[0].name}, ${data.results[0].admin1 || data.results[0].country}`
-          : "Your Location";
-        await loadWeather(latitude, longitude, name);
-      } catch {
-        await loadWeather(latitude, longitude, "Your Location");
-      }
+      await loadWeather(latitude, longitude, "Your Location");
     },
     () => {
       showError("Location access denied. Search for a city or zip code above.");
