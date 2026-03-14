@@ -6,11 +6,27 @@ import {
   formatDay,
 } from "./utils.js";
 
+function formatDateTime() {
+  const now = new Date();
+  const date = now.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+  const time = now.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+  return `${date} · ${time}`;
+}
+
 export function renderCurrentWeather(container, data, unit, locationName) {
   const { temp, feelsLike, humidity, windSpeed, weatherCode } = data.current;
   container.innerHTML = `
     <div class="current-weather">
       <div class="location-name">${locationName}</div>
+      <div class="current-datetime">${formatDateTime()}</div>
       <div class="current-icon">${weatherCodeToIcon(weatherCode)}</div>
       <div class="current-temp">${formatTemp(temp, unit)}</div>
       <div class="current-condition">${weatherCodeToDescription(weatherCode)}</div>

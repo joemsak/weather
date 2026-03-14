@@ -3,6 +3,7 @@ import {
   buildGeocodingUrl,
   parseGeocodingResponse,
   searchLocation,
+  reverseGeocode,
 } from "../js/geo.js";
 
 describe("buildGeocodingUrl", () => {
@@ -107,5 +108,60 @@ describe("searchLocation", () => {
 
     const locations = await searchLocation("Nowhere");
     expect(locations).toEqual([]);
+  });
+});
+
+describe("reverseGeocode", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("returns city and state from coordinates", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            address: {
+              city: "San Francisco",
+              state: "California",
+              country: "United States",
+            },
+          }),
+      }),
+    );
+
+    const name = await reverseGeocode(37.7749, -122.4194);
+    expect(name).toBe("San Francisco, California");
+  });
+
+  it("falls back to town when city is missing", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            address: {
+              town: "Smallville",
+              state: "Kansas",
+            },
+          }),
+      }),
+    );
+
+    const name = await reverseGeocode(39.0, -95.0);
+    expect(name).toBe("Smallville, Kansas");
+  });
+
+  it("returns 'Your Location' on fetch failure", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: false, status: 500 }),
+    );
+
+    const name = await reverseGeocode(0, 0);
+    expect(name).toBe("Your Location");
   });
 });

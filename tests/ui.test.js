@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   renderCurrentWeather,
   renderHourlyForecast,
@@ -38,6 +38,36 @@ describe("renderCurrentWeather", () => {
     expect(container.querySelector(".location-name").textContent).toBe(
       "New York",
     );
+  });
+
+  it("renders current date and time", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-01T14:30:00"));
+
+    renderCurrentWeather(
+      container,
+      {
+        current: {
+          temp: 20,
+          feelsLike: 18,
+          humidity: 50,
+          windSpeed: 10,
+          weatherCode: 0,
+        },
+      },
+      "C",
+      "Test City",
+    );
+
+    const datetime = container.querySelector(".current-datetime").textContent;
+    expect(datetime).toContain("Wednesday");
+    expect(datetime).toContain("April");
+    expect(datetime).toContain("1");
+    expect(datetime).toContain("2:30");
+    expect(datetime).toContain("PM");
+    expect(datetime).not.toContain("2026");
+
+    vi.useRealTimers();
   });
 
   it("renders in fahrenheit when unit is F", () => {

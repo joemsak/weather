@@ -33,3 +33,19 @@ export async function searchLocation(query) {
   const data = await response.json();
   return parseGeocodingResponse(data);
 }
+
+export async function reverseGeocode(lat, lng) {
+  const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=10`;
+  const response = await fetch(url, {
+    headers: { "User-Agent": "WeatherApp/1.0" },
+  });
+  if (!response.ok) return "Your Location";
+  const data = await response.json();
+  const city =
+    data.address?.city ||
+    data.address?.town ||
+    data.address?.village ||
+    data.address?.county;
+  const state = data.address?.state;
+  return [city, state].filter(Boolean).join(", ") || "Your Location";
+}

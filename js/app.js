@@ -1,5 +1,5 @@
 import { fetchWeather } from "./api.js";
-import { searchLocation } from "./geo.js";
+import { searchLocation, reverseGeocode } from "./geo.js";
 import {
   renderCurrentWeather,
   renderHourlyForecast,
@@ -100,34 +100,46 @@ window.addEventListener("popstate", (e) => {
 unitF.addEventListener("click", () => setUnit("F"));
 unitC.addEventListener("click", () => setUnit("C"));
 
-// On load: check URL params first, then try geolocation
+async function loadWeatherByCoords(lat, lng) {
+  const name = await reverseGeocode(lat, lng);
+  localStorage.setItem("lastLocation", JSON.stringify({ lat, lng, name }));
+  await loadWeather(lat, lng, name);
+}
+
+// On load: check URL params first, then cached location, then geolocation prompt
 const initialQuery = new URL(window.location).searchParams.get("q");
 if (initialQuery) {
   handleSearch(initialQuery, { pushState: false });
-} else if ("geolocation" in navigator) {
-  showLoading();
-  navigator.geolocation.getCurrentPosition(
-    async (pos) => {
-      const { latitude, longitude } = pos.coords;
-      await loadWeather(latitude, longitude, "Your Location");
-    },
-    (err) => {
-      if (err.code === 1) {
-        showError(
-          "Location access denied. Search for a city or zip code above.",
-        );
-      } else if (err.code === 3) {
-        showError(
-          "Location request timed out. Search for a city or zip code above.",
-        );
-      } else {
-        showError(
-          "Could not determine your location. Search for a city or zip code above.",
-        );
-      }
-    },
-    { enableHighAccuracy: false, timeout: 10000 },
-  );
 } else {
-  showError("Search for a city or zip code above to see weather.");
+  const cached = localStorage.getItem("lastLocation");
+  if (cached) {
+    const { lat, lng, name } = JSON.parse(cached);
+    loadWeather(lat, lng, name);
+  } else if ("geolocation" in navigator) {
+    showLoading();
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        await loadWeatherByCoords(latitude, longitude);
+      },
+      (err) => {
+        if (err.code === 1) {
+          showError(
+            "Location access denied. Search for a city or zip code above.",
+          );
+        } else if (err.code === 3) {
+          showError(
+            "Location request timed out. Search for a city or zip code above.",
+          );
+        } else {
+          showError(
+            "Could not determine your location. Search for a city or zip code above.",
+          );
+        }
+      },
+      { enableHighAccuracy: false, timeout: 10000 },
+    );
+  } else {
+    showError("Search for a city or zip code above to see weather.");
+  }
 }
