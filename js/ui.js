@@ -81,7 +81,7 @@ export function renderDailyForecast(container, daily, unit) {
           (d) => `
         <div class="daily-row">
           <span class="daily-day">${formatDay(d.date)}</span>
-          <span class="daily-icon">${weatherCodeToIcon(d.weatherCode)}</span>
+          <span class="daily-icon" data-tooltip="${weatherCodeToDescription(d.weatherCode)}">${weatherCodeToIcon(d.weatherCode)}</span>
           <span class="daily-high">${formatTemp(d.tempMax, unit)}</span>
           <span class="daily-low">${formatTemp(d.tempMin, unit)}</span>
         </div>

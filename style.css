@@ -231,6 +231,30 @@ body {
   font-size: 1.25rem;
   width: 40px;
   text-align: center;
+  position: relative;
+  cursor: default;
+}
+
+.daily-icon[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.35rem 0.6rem;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.75rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.daily-icon[data-tooltip]:hover::after,
+.daily-icon[data-tooltip]:active::after {
+  opacity: 1;
 }
 
 .daily-high {

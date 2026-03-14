@@ -186,6 +186,23 @@ describe("renderDailyForecast", () => {
     expect(rows[0].querySelector(".daily-low").textContent).toBe("15°C");
     expect(rows[0].querySelector(".daily-icon").textContent).toBe("⛅");
   });
+
+  it("renders daily icons with tooltip via data-tooltip", () => {
+    const daily = [
+      { date: "2024-01-15", tempMax: 22, tempMin: 15, weatherCode: 2 },
+      { date: "2024-01-16", tempMax: 24, tempMin: 16, weatherCode: 3 },
+    ];
+
+    renderDailyForecast(container, daily, "C");
+
+    const rows = container.querySelectorAll(".daily-row");
+    expect(
+      rows[0].querySelector(".daily-icon").getAttribute("data-tooltip"),
+    ).toBe("Partly cloudy");
+    expect(
+      rows[1].querySelector(".daily-icon").getAttribute("data-tooltip"),
+    ).toBe("Overcast");
+  });
 });
 
 describe("renderError", () => {
