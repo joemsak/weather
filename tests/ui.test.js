@@ -96,7 +96,7 @@ describe("renderHourlyForecast", () => {
       { time: "2024-01-15T15:00", temp: 21, weatherCode: 1 },
     ];
 
-    renderHourlyForecast(container, hourly, "C");
+    renderHourlyForecast(container, hourly, "C", new Date("2024-01-15T13:00"));
 
     const items = container.querySelectorAll(".hourly-item");
     expect(items).toHaveLength(2);
@@ -111,10 +111,27 @@ describe("renderHourlyForecast", () => {
       weatherCode: 0,
     }));
 
-    renderHourlyForecast(container, hourly, "C");
+    renderHourlyForecast(container, hourly, "C", new Date("2024-01-15T00:00"));
 
     const items = container.querySelectorAll(".hourly-item");
     expect(items).toHaveLength(24);
+  });
+
+  it("filters out past hours", () => {
+    const now = new Date("2024-01-15T14:30");
+    const hourly = [
+      { time: "2024-01-15T12:00", temp: 18, weatherCode: 0 },
+      { time: "2024-01-15T13:00", temp: 19, weatherCode: 0 },
+      { time: "2024-01-15T14:00", temp: 20, weatherCode: 0 },
+      { time: "2024-01-15T15:00", temp: 21, weatherCode: 1 },
+      { time: "2024-01-15T16:00", temp: 22, weatherCode: 2 },
+    ];
+
+    renderHourlyForecast(container, hourly, "C", now);
+
+    const items = container.querySelectorAll(".hourly-item");
+    expect(items).toHaveLength(3);
+    expect(items[0].querySelector(".hourly-temp").textContent).toBe("20°C");
   });
 });
 

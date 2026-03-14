@@ -23,8 +23,21 @@ export function renderCurrentWeather(container, data, unit, locationName) {
   `;
 }
 
-export function renderHourlyForecast(container, hourly, unit) {
-  const items = hourly.slice(0, 24);
+export function renderHourlyForecast(
+  container,
+  hourly,
+  unit,
+  now = new Date(),
+) {
+  const currentHour = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    now.getHours(),
+  ).getTime();
+  const items = hourly
+    .filter((h) => new Date(h.time).getTime() >= currentHour)
+    .slice(0, 24);
   container.innerHTML = `
     <h2>Hourly</h2>
     <div class="hourly-scroll">
