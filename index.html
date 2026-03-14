@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Search city or zip code..." autocomplete="off">
+      <button id="search-btn">Search</button>
+    </div>
+    <div class="unit-toggle">
+      <button id="unit-f" class="">°F</button>
+      <button id="unit-c" class="active">°C</button>
+    </div>
+    <div id="current"></div>
+    <div id="hourly"></div>
+    <div id="daily"></div>
+  </div>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
