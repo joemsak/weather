@@ -111,9 +111,22 @@ if (initialQuery) {
       const { latitude, longitude } = pos.coords;
       await loadWeather(latitude, longitude, "Your Location");
     },
-    () => {
-      showError("Location access denied. Search for a city or zip code above.");
+    (err) => {
+      if (err.code === 1) {
+        showError(
+          "Location access denied. Search for a city or zip code above.",
+        );
+      } else if (err.code === 3) {
+        showError(
+          "Location request timed out. Search for a city or zip code above.",
+        );
+      } else {
+        showError(
+          "Could not determine your location. Search for a city or zip code above.",
+        );
+      }
     },
+    { enableHighAccuracy: false, timeout: 10000 },
   );
 } else {
   showError("Search for a city or zip code above to see weather.");
